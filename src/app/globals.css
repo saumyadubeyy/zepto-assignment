@@ -6,7 +6,7 @@
 /* to style scrollbar */
 @layer utilities {
     .scrollbar::-webkit-scrollbar {
-      width: 1px;
+      width: 5px;
       /* height: 10px; */
     }
   
@@ -18,7 +18,7 @@
     .scrollbar::-webkit-scrollbar-thumb {
       background: black;
       border-radius: 100svh;
-      border: 6px solid #F9FAFB;
+      border: 5px solid black; /* check saumya */
     }
   
     .scrollbar::-webkit-scrollbar-thumb:hover {
