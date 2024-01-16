@@ -214,6 +214,7 @@ export default function Home() {
               />
             }
         </div>
+        {searchQuery && filteredOptions.length === 0 && <p className="p-2 ">no search results found</p>}
       </div>
     </main>
   )
