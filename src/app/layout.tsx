@@ -5,8 +5,8 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'NextJS Template',
-  description: 'next.js template with app router, tailwindCSS',
+  title: 'Saumya Dubey | Zepto Assignment',
+  description: 'custom select component | nextjs, tailwindcss',
 }
 
 export default function RootLayout({
