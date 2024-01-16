@@ -41,8 +41,18 @@ export default function Home() {
   }
 
   const renderOptionsList = () => {
+    const inputElement = inputRef.current;
+    if (!inputElement) return null;
+
+    const inputRect = inputElement.getBoundingClientRect();
+    const dropdownStyle: React.CSSProperties = {
+      position: 'absolute',
+      top: inputRect.bottom + 10 + window.scrollY,
+      left: inputRect.left + window.scrollX,
+    };
+
     return (
-      <div className="flex flex-col max-h-[350px] overflow-auto scrollbar absolute top-0 left-0 bg-gray-100 min-w-[450px]">
+      <div style={dropdownStyle} className="flex flex-col max-h-[350px] overflow-auto scrollbar bg-gray-100 min-w-[450px]">
         {filteredOptions.map((item) => {
           return (
             <div onClick={() => addToOptions(item)} key={item.email} className="hover:bg-gray-200 rounded-md cursor-pointer py-2 px-4 flex justify-between items-center gap-4">
