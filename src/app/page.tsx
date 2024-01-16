@@ -5,12 +5,19 @@ import { OptionType } from "../../types/types";
 import closeIcon from "./assets/closeIcon.svg"
 import Image from "next/image";
 
+enum KEY {
+  BACKSPACE = "Backspace",
+  ARROW_DOWN = "ArrowDown",
+  ARROW_UP = "ArrowUp",
+  ENTER = "Enter"
+}
+
 export default function Home() {
-  const [input, setInput] = useState("");
   const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedOptions, setSelectedOptions] = useState<OptionType[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [highlightedOption, setHighlightedOption] = useState<OptionType | null>();
 
   const availableOptions = useMemo(() => {
     // Filter options that are not selected
@@ -27,6 +34,28 @@ export default function Home() {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsDropdownVisible(true);
     setSearchQuery(event.target.value);
+    
+  }
+
+  const handleKeyChange = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const key = event.key
+    if (key === KEY.BACKSPACE && searchQuery === "" && selectedOptions.length > 0) {
+      console.log("backspace!!")
+      if (highlightedOption) {
+        console.log("yes if")
+        removeFromOptions(highlightedOption.email);
+        setHighlightedOption(null);
+      } else {
+        console.log("no if");
+        const option = selectedOptions[selectedOptions.length - 1];
+        console.log("last option =>", option)
+        setHighlightedOption(option);
+      }
+    } else {
+      setHighlightedOption(null);
+    }
+    
+    
   }
 
   const handleShowDropdown = () => {
@@ -71,8 +100,12 @@ export default function Home() {
     return (
       <>
         {Array.from(options).map((item) => {
+          const highlightedOptionClass = {
+            border: `1.5px solid ${item.color}`,
+            backgroundColor: item.chipColor,
+          }
           return (
-            <div className="p-1 rounded-lg flex gap-2 items-center min-w-fit" style={{ border: `1.5px solid ${item.color}`, backgroundColor: item.chipColor }} key={item.email}>
+            <div className={`p-1 rounded-lg flex gap-2 items-center min-w-fit ${item.email === highlightedOption?.email ? "shadow-lg shadow-gray-500 mb-1" : ""}`} style={highlightedOptionClass} key={item.email}>
               <div className="w-6 h-6 rounded-full flex justify-center items-center text-white text-sm" style={{ backgroundColor: item.color}}>{item.name.charAt(0)}</div>
               <div className="text-sm">{item.name}</div>
               <div onClick={() => removeFromOptions(item.email)} className="hover:shadow-lg cursor-pointer transition-all duration-300 rounded-full">
@@ -106,6 +139,7 @@ export default function Home() {
               className="min-w-[100px] flex-1 p-4 outline-none cursor-text"
               value={searchQuery}
               onChange={handleSearchChange}
+              onKeyDown={handleKeyChange}
             />
             {
               isDropdownVisible && renderOptionsList()
