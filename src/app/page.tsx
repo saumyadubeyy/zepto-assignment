@@ -181,7 +181,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between md:p-24 p-12 transition-all duration-500">
-      <div className="bg-stone-700 p-2">
+      <div className="bg-neutral-300 p-2">
         <div
           className="bg-white md:min-w-[400px] md:w-[1000px] rounded-lg flex hover:shadow-sm transition-all focus:shadow-md duration-500 flex-wrap items-center gap-2 p-2"
         >
