@@ -9,7 +9,8 @@ enum KEY {
   BACKSPACE = "Backspace",
   ARROW_DOWN = "ArrowDown",
   ARROW_UP = "ArrowUp",
-  ENTER = "Enter"
+  ENTER = "Enter",
+  ESCAPE = "Escape"
 }
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
   const [selectedOptions, setSelectedOptions] = useState<OptionType[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [highlightedOption, setHighlightedOption] = useState<OptionType | null>();
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const availableOptions = useMemo(() => {
     // Filter options that are not selected
@@ -40,22 +42,78 @@ export default function Home() {
   const handleKeyChange = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const key = event.key
     if (key === KEY.BACKSPACE && searchQuery === "" && selectedOptions.length > 0) {
-      console.log("backspace!!")
       if (highlightedOption) {
-        console.log("yes if")
         removeFromOptions(highlightedOption.email);
         setHighlightedOption(null);
       } else {
-        console.log("no if");
         const option = selectedOptions[selectedOptions.length - 1];
-        console.log("last option =>", option)
         setHighlightedOption(option);
       }
-    } else {
+      setIsDropdownVisible(false)
+    } else if ((key === KEY.ARROW_DOWN || key === KEY.ENTER || key === KEY.ARROW_UP) && !isDropdownVisible) {
+      setIsDropdownVisible(true);
+    }
+    else if ((key === KEY.ARROW_DOWN || key === KEY.ARROW_UP) && isDropdownVisible) {
+      let index = filteredOptions.findIndex(item => item.email === (highlightedOption?.email || filteredOptions[0].email)) || 0;
+      if (key === KEY.ARROW_DOWN) {
+        // Handle Arrow Down key
+        if (index < filteredOptions.length - 1) {
+          setHighlightedOption(filteredOptions[index + 1]);
+  
+          // Scroll into view using ref
+          const container = dropdownRef.current;
+          const highlightedElement = document.getElementById(`option-${filteredOptions[index + 1].email}`);
+  
+          if (container && highlightedElement) {
+            highlightedElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+            });
+          }
+        } else {
+          // If already at the last option, wrap to the first option
+          setHighlightedOption(filteredOptions[0]);
+        }
+      } else if (key === KEY.ARROW_UP) {
+        // Handle Arrow Up key
+        if (index > 0) {
+          setHighlightedOption(filteredOptions[index - 1]);
+  
+          // Scroll into view using ref
+          const container = dropdownRef.current;
+          const highlightedElement = document.getElementById(`option-${filteredOptions[index - 1].email}`);
+  
+          if (container && highlightedElement) {
+            highlightedElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+            });
+          }
+        } else {
+          // If already at the first option, wrap to the last option
+          setHighlightedOption(filteredOptions[filteredOptions.length - 1]);
+          // Scroll into view using ref
+          const container = dropdownRef.current;
+          const highlightedElement = document.getElementById(`option-${filteredOptions[filteredOptions.length - 1].email}`);
+  
+          if (container && highlightedElement) {
+            highlightedElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+            });
+          }
+        }
+      }
+    } else if (key === KEY.ENTER && highlightedOption) {
+      addToOptions(highlightedOption);
+      setHighlightedOption(null);
+    } else if (key === KEY.ESCAPE) {
+      setHighlightedOption(null);
+      setIsDropdownVisible(false);
+    } 
+    else {
       setHighlightedOption(null);
     }
-    
-    
   }
 
   const handleShowDropdown = () => {
@@ -81,10 +139,16 @@ export default function Home() {
     };
 
     return (
-      <div style={dropdownStyle} className="flex flex-col max-h-[350px] overflow-auto scrollbar bg-gray-100 min-w-[450px]">
+      <div style={dropdownStyle} ref={dropdownRef} className="flex flex-col max-h-[350px] overflow-auto scrollbar bg-gray-100 min-w-[450px]">
         {filteredOptions.map((item) => {
           return (
-            <div onClick={() => addToOptions(item)} key={item.email} className="hover:bg-gray-200 rounded-md cursor-pointer py-2 px-4 flex justify-between items-center gap-4">
+            <div 
+              onClick={() => addToOptions(item)} 
+              key={item.email} 
+              className={`${highlightedOption?.email === item.email ? "bg-gray-200" : ""} hover:bg-gray-200 rounded-md cursor-pointer py-2 px-4 flex justify-between items-center gap-4`}
+              onMouseEnter={() => setHighlightedOption(null)}
+              id={`option-${item.email}`}
+            >
               <div className="w-8 h-8 rounded-full flex justify-center items-center text-white" style={{ backgroundColor: item.color}}>{item.name.charAt(0)}</div>
               <p className="flex-1">{item.name}</p>
               <p className="flex-1 text-right text-gray-400 text-sm">{item.email}</p>
